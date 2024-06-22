@@ -35,14 +35,14 @@ bot = commands.Bot(
 async def on_ready():
     print(f'✅ {bot.user.name} ออนไลน์แล้ว')
 
-@bot.command()
-async def create_category(ctx, *, category_name):
+@bot.slash_command(name="สร้างหมวดหมู่", description="สร้างหมวดหมู่ใหม่ในเซิร์ฟเวอร์")
+async def create_category(ctx, category_name: str):
     existing_category = get(ctx.guild.categories, name=category_name)
     if not existing_category:
         await ctx.guild.create_category(category_name)
-        await ctx.send(f'✅ สร้างหมวดหมู่ "{category_name}" สำเร็จแล้ว.')
+        await ctx.respond(f'✅ สร้างหมวดหมู่ "{category_name}" สำเร็จแล้ว.', ephemeral=True)
     else:
-        await ctx.send(f'🚫 มีหมวดหมู่ "{category_name}" อยู่แล้ว.')
+        await ctx.respond(f' มีหมวดหมู่ "{category_name}" อยู่แล้ว.', ephemeral=True)
 
 @bot.command()
 async def create_channel(ctx, channel_type: str, category_name: str, *channel_names: str):
