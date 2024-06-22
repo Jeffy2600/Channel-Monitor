@@ -3,6 +3,20 @@ from discord.ext import commands
 from discord.utils import get
 import os
 from dotenv import load_dotenv
+import logging
+
+logging.basicConfig(level=logging.INFO)
+
+def main():
+    # ... รหัสสำหรับเข้าสู่ระบบและทำงานของบอทของคุณ ...
+
+    logging.info("บอทเข้าสู่ระบบเรียบร้อยแล้ว")
+    # ... รหัสสำหรับการทำงานอื่นๆ ของบอท ...
+
+    logging.info("บอทออนไลน์แล้ว")
+
+if __name__ == "__main__":
+    main()
 
 # โหลดโทเค็นจากไฟล์ .env
 load_dotenv()
