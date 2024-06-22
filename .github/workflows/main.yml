@@ -2,7 +2,7 @@ name: Run Discord Bot
 
 on:
   schedule:
-    - cron: "0 0 * * *"  # รันทุกๆ 00:00 น. ของทุกวัน
+    - cron: "0 */1 * * *"  # รันทุกๆ 1 ชั่วโมง
 
 jobs:
   build:
