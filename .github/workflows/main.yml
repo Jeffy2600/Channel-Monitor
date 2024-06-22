@@ -25,7 +25,7 @@ jobs:
 
     - name: Run bot
       run: |
-        python -m bot --log-level=INFO &
+        pm2 start bot.py --log-level=INFO
 
     - name: Save logs
       uses: actions/upload-artifact@v2
