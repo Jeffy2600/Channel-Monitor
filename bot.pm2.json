@@ -1,0 +1,12 @@
+{
+  "apps": [
+    {
+      "name": "discord-bot",
+      "script": "bot.py",
+      "log_level": "info",
+      "env": {
+        "NODE_ENV": "production"
+      }
+    }
+  ]
+}
