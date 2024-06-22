@@ -1,8 +1,10 @@
 name: Run Discord Bot
 
 on:
-  schedule:
-    - cron: "0 */1 * * *"  # รันทุกๆ 1 ชั่วโมง
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   build:
@@ -23,4 +25,11 @@ jobs:
 
     - name: Run bot
       run: |
-        python bot.py --log-level=INFO
+        python -m bot --log-level=INFO &
+
+    - name: Save logs
+      uses: actions/upload-artifact@v2
+      with:
+        name: logs
+        path: logs/*.log
+        
