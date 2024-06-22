@@ -2,9 +2,7 @@ name: Run Discord Bot
 
 on:
   schedule:
-    - cron: "00:00 * * *"  # รันทุกๆ 00:00 น.
-    - cron: "08:00 * * *"  # รันทุกๆ 08:00 น.
-    - cron: "16:00 * * *"  # รันทุกๆ 16:00 น.
+    - cron: "0 0 * * *"  # รันทุกๆ 00:00 น. ของทุกวัน
 
 jobs:
   build:
@@ -26,4 +24,3 @@ jobs:
     - name: Run bot
       run: |
         python bot.py --log-level=INFO
-
