@@ -1,6 +1,5 @@
 import discord
 from discord.ext import commands
-from discord.ui import View, Button
 from discord.utils import get
 import os
 from dotenv import load_dotenv
