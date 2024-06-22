@@ -1,4 +1,4 @@
-name: Run Discord Bot
+Name: Run Discord Bot
 
 on:
   push:
@@ -25,11 +25,4 @@ jobs:
 
     - name: Run bot
       run: |
-        pm2 start bot.py --log-level=INFO
-
-    - name: Save logs
-      uses: actions/upload-artifact@v2
-      with:
-        name: logs
-        path: logs/*.log
-        
+        python bot.py --log-level=INFO
