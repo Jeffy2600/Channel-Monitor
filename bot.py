@@ -2,8 +2,6 @@ import discord
 from discord.ext import commands
 from discord.ui import View, Button
 from discord.utils import get
-import os
-from dotenv import load_dotenv
 import logging
 
 logging.basicConfig(level=logging.INFO)
@@ -18,10 +16,6 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-# โหลดโทเค็นจากไฟล์ .env
-load_dotenv()
-TOKEN = os.getenv('DISCORD_TOKEN')
 
 intents = discord.Intents.default()
 intents.message_content = True
