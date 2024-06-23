@@ -1,4 +1,4 @@
-Name: Run Discord Bot
+name: Run Python Bot
 
 on:
   push:
@@ -26,4 +26,3 @@ jobs:
     - name: Run bot
       run: |
         python bot.py --log-level=INFO
-        
