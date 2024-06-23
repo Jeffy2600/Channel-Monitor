@@ -182,12 +182,109 @@ async def button_pressed(interaction, button):
         await delete_help_embed(interaction, view)
     elif button.custom_id == "list":
         await list_help_embed(interaction, view)
+async def create_category(interaction, category_name):
+    try:
+        await interaction.guild.create_category(category_name)
+        await interaction.response.send_message(f"สร้างหมวดหมู่ `{category_name}` สำเร็จแล้ว")
+    except discord.errors.HTTPError as e:
+        if e.status == 403:
+            await interaction.response.send_message("คุณไม่มีสิทธิ์สร้างหมวดหมู่")
+        else:
+            await interaction.response.send_message(f"เกิดข้อผิดพลาด: {e}")
+            
+async def create_channel(interaction, channel_name, channel_type, category_name=None):
+    try:
+        if category_name is not None:
+            category = discord.utils.get(interaction.guild.categories, name=category_name)
+            if category is None:
+                await interaction.response.send_message(f"ไม่พบหมวดหมู่ `{category_name}`")
+                return
+            channel = await interaction.guild.create_text_channel(channel_name, category=category) if channel_type == "text" else await interaction.guild.create_voice_channel(channel_name, category=category)
+        else:
+            channel = await interaction.guild.create_text_channel(channel_name) if channel_type == "text" else await interaction.guild.create_voice_channel(channel_name)
+        await interaction.response.send_message(f"สร้างช่อง `{channel_name}` ประเภท `{channel_type}` สำเร็จแล้ว")
+    except discord.errors.HTTPError as e:
+        if e.status == 403:
+            await interaction.response.send_message("คุณไม่มีสิทธิ์สร้างช่อง")
+        else:
+            await interaction.response.send_message(f"เกิดข้อผิดพลาด: {e}")
 
-async def create_help_embed(interaction, view):
-    embed = discord.Embed(title=" คำสั่งสร้าง", description="ใช้คำสั่งเหล่านี้เพื่อสร้างช่องและหมวดหมู่:")
-    embed.add_field(name="/สร้างหมวดหมู่", value="สร้างหมวดหมู่ใหม่ในเซิร์ฟเวอร์\nตัวอย่าง: /สร้างหมวดหมู่ เกม", inline=False)
-    embed.add_field(name="/สร้างช่อง", value="สร้างช่องใหม่ในเซิร์ฟเวอร์\nตัวอย่าง: /สร้างช่อง text เกมทั่วไป\
+async def edit_category(interaction, category_id, new_category_name):
+    try:
+        category = interaction.guild.get_category(category_id)
+        if category is None:
+            await interaction.response.send_message(f"ไม่พบหมวดหมู่ `{category_id}`")
+            return
+        await category.edit(name=new_category_name)
+        await interaction.response.send_message(f"เปลี่ยนชื่อหมวดหมู่ `{category_id}` เป็น `{new_category_name}` สำเร็จแล้ว")
+    except discord.errors.HTTPError as e:
+        if e.status == 403:
+            await interaction.response.send_message("คุณไม่มีสิทธิ์แก้ไขหมวดหมู่")
+        else:
+            await interaction.response.send_message(f"เกิดข้อผิดพลาด: {e}")
 
+async def edit_channel(interaction, channel_id, new_channel_name):
+    try:
+        channel = interaction.guild.get_channel(channel_id)
+        if channel is None:
+            await interaction.response.send_message(f"ไม่พบช่อง `{channel_id}`")
+            return
+        await channel.edit(name=new_channel_name)
+        await interaction.response.send_message(f"เปลี่ยนชื่อช่อง `{channel_id}` เป็น `{new_channel_name}` สำเร็จแล้ว")
+    except discord.errors.HTTPError as e:
+        if e.status == 403:
+            await interaction.response.send_message("คุณไม่มีสิทธิ์แก้ไขช่อง")
+        else:
+            await interaction.response.send_message(f"เกิดข้อผิดพลาด: {e}")
+
+async def delete_category(interaction, category_id):
+    try:
+        category = interaction.guild.get_category(category_id)
+        if category is None:
+            await interaction.response.send_message(f"ไม่พบหมวดหมู่ `{category_id}`")
+            return
+        await category.delete()
+        await interaction.response.send_message(f"ลบหมวดหมู่ `{category_id}` สำเร็จแล้ว")
+    except discord.errors.HTTPError as e:
+        if e.status == 403:
+            await interaction.response.send_message("คุณไม่มีสิทธิ์ลบหมวดหมู่")
+        else:
+            await interaction.response.send_message(f"เกิดข้อผิดพลาด: {e}")
+
+async def delete_channel(interaction, channel_id):
+    try:
+        channel = interaction.guild.get_channel(channel_id)
+        if channel is None:
+            await interaction.response.send_message(f"ไม่พบช่อง `{channel_id}`")
+            return
+        await channel.delete()
+        await interaction.response.send_message(f"ลบช่อง `{channel_id}` สำเร็จแล้ว")
+    except discord.errors.HTTPError as e:
+        if e.status == 403:
+            await interaction.response.send_message("คุณไม่มีสิทธิ์ลบช่อง")
+        else:
+            await interaction.response.send_message(f"เกิดข้อผิดพลาด: {e}")
+
+async def list_categories(interaction):
+    categories = interaction.guild.categories
+    if not categories:
+        await interaction.response.send_message("ไม่มีหมวดหมู่ในเซิร์ฟเวอร์นี้")
+        return
+    embed = discord.Embed(title="รายการหมวดหมู่", description="", color=discord.Color.blue())
+    for category in categories:
+        embed.add_field(name=category.name, value=f"[ไปที่หมวดหมู่](https://discordapp.com/channels/{interaction.guild.id}/{category.id})", inline=False)
+    await interaction.response.send_message(embed=embed)
+
+async def list_channels(interaction):
+    channels = interaction.guild.channels
+    if not channels:
+        await interaction.response.send_message("ไม่มีช่องในเซิร์ฟเวอร์นี้")
+        return
+    embed = discord.Embed(title="รายการช่อง", description="", color=discord.Color.blue())
+    for channel in channels:
+        embed.add_field(name=channel.name, value=f"[ไปที่ช่อง](https://discordapp.com/channels/{interaction.guild.id}/{channel.id})", inline=False)
+    await interaction.response.send_message(embed=embed)
+    
 # รันบอท
 bot.run(TOKEN)
           
