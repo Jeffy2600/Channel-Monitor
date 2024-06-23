@@ -1,0 +1,12 @@
+{
+  "apps": [
+    {
+      "name": "python-bot",
+      "script": "bot.py",
+      "log_level": "info",
+      "env": {
+        "PYTHONUNBUFFERED": true
+      }
+    }
+  ]
+}
