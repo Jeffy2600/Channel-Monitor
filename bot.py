@@ -1,23 +1,8 @@
 import discord
 from discord.ext import commands
-from discord.ui import View, Button
 from discord.utils import get
 import os
 from dotenv import load_dotenv
-import logging
-
-logging.basicConfig(level=logging.INFO)
-
-def main():
-    # ... รหัสสำหรับเข้าสู่ระบบและทำงานของบอทของคุณ ...
-
-    logging.info("บอทเข้าสู่ระบบเรียบร้อยแล้ว")
-    # ... รหัสสำหรับการทำงานอื่นๆ ของบอท ...
-
-    logging.info("บอทออนไลน์แล้ว")
-
-if __name__ == "__main__":
-    main()
 
 # โหลดโทเค็นจากไฟล์ .env
 load_dotenv()
@@ -36,129 +21,106 @@ bot = commands.Bot(
 async def on_ready():
     print(f'✅ {bot.user.name} ออนไลน์แล้ว')
 
-@bot.slash_command(name="สร้างหมวดหมู่", description="สร้างหมวดหมู่ใหม่ในเซิร์ฟเวอร์")
-async def create_category(ctx, category_name: str):
+@bot.command()
+async def create_category(ctx, *, category_name):
     existing_category = get(ctx.guild.categories, name=category_name)
     if not existing_category:
         await ctx.guild.create_category(category_name)
-        await ctx.respond(f'✅ สร้างหมวดหมู่ "{category_name}" สำเร็จแล้ว.', ephemeral=True)
+        await ctx.send(f'✅ สร้างหมวดหมู่ "{category_name}" สำเร็จแล้ว.')
     else:
-        await ctx.respond(f' มีหมวดหมู่ "{category_name}" อยู่แล้ว.', ephemeral=True)
+        await ctx.send(f'🚫 มีหมวดหมู่ "{category_name}" อยู่แล้ว.')
 
-@bot.slash_command(name="สร้างช่อง", description="สร้างช่องใหม่ในเซิร์ฟเวอร์")
+@bot.command()
 async def create_channel(ctx, channel_type: str, category_name: str, *channel_names: str):
-    await check_permissions(ctx, "manage_channels")
+    category = discord.utils.get(ctx.guild.categories, name=category_name)
+    new_category_created = False
+    if not category:
+        category = await ctx.guild.create_category(category_name)
+        new_category_created = True
 
-    category = await create_category(ctx, category_name)
+    channel_type = channel_type.lower().strip('"')
+    channel_names = [name.strip('"') for name in channel_names]
 
-    with async_with(discord.TextChannel(ctx.guild)) as channel:
-        await create_channels(channel, channel_type, category_name, channel_names)
-
-async def create_channels(channel: discord.TextChannel, channel_type: str, category_name: str, channel_names: str):
     channel_types = {
-        "text": discord.ChannelType.text,
-        "voice": discord.ChannelType.voice,
-        "forum": discord.ChannelType.forum,
-        "announcement": discord.ChannelType.news
+        'text': discord.ChannelType.text,
+        'voice': discord.ChannelType.voice,
+        'forum': discord.ChannelType.forum,
+        'announcement': discord.ChannelType.news
     }
 
     if channel_type not in channel_types:
-        await ctx.respond(f" ไม่พบประเภทช่อง: {channel_type}", ephemeral=True)
+        await ctx.send(f"🚫 ไม่พบประเภทช่อง: {channel_type}")
         return
 
     for channel_name in channel_names:
-        if channel_name.lower() in [channel.name.lower() for channel in ctx.guild.channels]:
-            await ctx.respond(f" ชื่อช่อง '{channel_name}' ซ้ำกับช่องที่มีอยู่", ephemeral=True)
-            continue
+        if channel_type == 'text':
+            await ctx.guild.create_text_channel(channel_name, category=category)
+        elif channel_type == 'voice':
+            await ctx.guild.create_voice_channel(channel_name, category=category)
+        elif channel_type == 'forum':
+            await ctx.guild.create_stage_channel(channel_name, category=category)
+        elif channel_type == 'announcement':
+            await ctx.guild.create_news_channel(channel_name, category=category)
 
-        if channel_type == "text":
-            await channel.guild.create_text_channel(channel_name, category=category)
-        elif channel_type == "voice":
-            await channel.guild.create_voice_channel(channel_name, category=category)
-        elif channel_type == "forum":
-            await channel.guild.create_stage_channel(channel_name, category=category)
-        elif channel_type == "announcement":
-            await channel.guild.create_news_channel(channel_name, category=category)
+    if new_category_created:
+        await ctx.send(f"✅ สร้างหมวดหมู่ '{category_name}' และสร้างช่อง {channel_type} {', '.join(channel_names)} ภายใต้หมวดหมู่นี้สำเร็จแล้วครับ/ค่ะ")
+    else:
+        await ctx.send(f"✅ สร้างช่อง {channel_type} {', '.join(channel_names)} ภายใต้หมวดหมู่ '{category_name}' สำเร็จแล้วครับ/ค่ะ")
 
-    await ctx.respond(f"✅ สร้างช่อง {channel_type} {', '.join(channel_names)} ภายใต้หมวดหมู่ '{category_name}' สำเร็จแล้วครับ/ค่ะ", ephemeral=True)
-
-async def check_permissions(ctx, permission):
-    if not ctx.author.guild_permissions.has_perm(permission):
-        await ctx.respond(f"❌ คุณไม่มีสิทธิ์สร้างช่อง", ephemeral=True)
-        raise commands.errors.MissingPermissions([permission])
-
-@bot.slash_command(name="ลบหมวดหมู่และช่อง", description="ลบหมวดหมู่และช่องทั้งหมดภายในหมวดหมู่")
+@bot.command()
 async def delete_cac(ctx, category_name: str):
     category = discord.utils.get(ctx.guild.categories, name=category_name)
     if not category:
-        await ctx.respond(f" ไม่พบหมวดหมู่: {category_name}", ephemeral=True)
-        return
-
-    num_channels = len(category.channels)
-    await ctx.respond(f"⚠️ ต้องการลบหมวดหมู่ '{category_name}' และช่องทั้งหมด ({num_channels} ช่อง) ใช่หรือไม่? (ตอบกลับด้วย 'ยืนยัน' เพื่อดำเนินการต่อ)", ephemeral=True)
-
-    def check(m):
-        return m.author == ctx.author and m.content.lower() == "ยืนยัน"
-
-    try:
-        await bot.wait_for_message(check=check, timeout=10)
-    except asyncio.TimeoutError:
-        await ctx.respond("❌ ยกเลิกการลบหมวดหมู่", ephemeral=True)
+        await ctx.send(f"🚫 ไม่พบหมวดหมู่: {category_name}")
         return
 
     for channel in category.channels:
         await channel.delete()
 
     await category.delete()
-    await ctx.respond(f"✅ ลบหมวดหมู่ '{category_name}' และช่องทั้งหมด ({num_channels} ช่อง) สำเร็จแล้วครับ/ค่ะ", ephemeral=True)
+    await ctx.send(f"✅ ลบหมวดหมู่ '{category_name}' และช่องทั้งหมดภายใต้หมวดหมู่นี้สำเร็จแล้วครับ/ค่ะ")
 
-@bot.slash_command(name="ลบหมวดหมู่", description="ลบหมวดหมู่")
+@bot.command()
 async def delete_category(ctx, category_name: str):
     category = discord.utils.get(ctx.guild.categories, name=category_name)
     if not category:
-        await ctx.respond(f" ไม่พบหมวดหมู่: {category_name}", ephemeral=True)
-        return
-
-    await ctx.respond(f"⚠️ ต้องการลบหมวดหมู่ '{category_name}' ใช่หรือไม่? (ตอบกลับด้วย 'ยืนยัน' เพื่อดำเนินการต่อ)", ephemeral=True)
-
-    def check(m):
-        return m.author == ctx.author and m.content.lower() == "ยืนยัน"
-
-    try:
-        await bot.wait_for_message(check=check, timeout=10)
-    except asyncio.TimeoutError:
-        await ctx.respond("❌ ยกเลิกการลบหมวดหมู่", ephemeral=True)
+        await ctx.send(f"🚫 ไม่พบหมวดหมู่: {category_name}")
         return
 
     await category.delete()
-    await ctx.respond(f"✅ ลบหมวดหมู่ '{category_name}' สำเร็จแล้วครับ/ค่ะ", ephemeral=True)
+    await ctx.send(f"✅ ลบเฉพาะหมวดหมู่ '{category_name}' สำเร็จแล้วครับ/ค่ะ")
 
-@bot.slash_command(name="ลบช่อง", description="ลบช่อง")
+@bot.command()
+async def rename_channel(ctx, old_name, *, new_name):
+    channel = get(ctx.guild.channels, name=old_name)
+    if channel:
+        await channel.edit(name=new_name)
+        await ctx.send(f'✅ ช่อง "{old_name}" ถูกเปลี่ยนเป็น "{new_name}".')
+    else:
+        await ctx.send(f'🚫 ไม่พบช่อง "{old_name}".')
+
+@bot.command()
 async def delete_channel(ctx, *channel_names):
     deleted_channels = []
     for channel_name in channel_names:
         channel = discord.utils.get(ctx.guild.channels, name=channel_name)
         if channel:
-            await ctx.respond(f"⚠️ ต้องการลบช่อง '{channel_name}' ใช่หรือไม่? (ตอบกลับด้วย 'ยืนยัน' เพื่อดำเนินการต่อ)", ephemeral=True)
-
-            def check(m):
-                return m.author == ctx.author and m.content.lower() == "ยืนยัน"
-
-            try:
-                await bot.wait_for_message(check=check, timeout=10)
-            except asyncio.TimeoutError:
-                await ctx.respond("❌ ยกเลิกการลบช่อง", ephemeral=True)
-                continue
-
             await channel.delete()
             deleted_channels.append(channel_name)
-
     if deleted_channels:
-        await ctx.respond(f"✅ ลบช่อง {', '.join(deleted_channels)} สำเร็จแล้วครับ/ค่ะ", ephemeral=True)
+        await ctx.send(f"✅ ลบช่อง {', '.join(deleted_channels)} สำเร็จแล้วครับ/ค่ะ")
     else:
-        await ctx.respond(" ไม่พบช่องที่ต้องการลบครับ/ค่ะ", ephemeral=True)
+        await ctx.send("🚫 ไม่พบช่องที่ต้องการลบครับ/ค่ะ")
 
-@bot.slash_command(name="ช่วยเหลือ", description="แสดงรายการคำสั่งสำหรับการจัดการช่องและหมวดหมู่")
+@bot.command()
+async def list(ctx):
+    embed = discord.Embed(title="📚 รายชื่อหมวดหมู่และช่อง 📚", description="🌟 นี่คือรายชื่อของหมวดหมู่และช่องในเซิร์ฟเวอร์:", color=0x1abc9c)
+    for category in ctx.guild.categories:
+        channels = '\n'.join([f"🔹 {channel.name}" for channel in category.channels])
+        embed.add_field(name=f"📂 **{category.name}**", value=channels or "🚫 ไม่มีช่อง", inline=False)
+    await ctx.send(embed=embed)
+
+@bot.command()
 async def help(ctx):
     embed = discord.Embed(
         title="🛠️ คู่มือบอท 🛠️",
@@ -203,7 +165,6 @@ async def help(ctx):
     embed.set_footer(text="💡 โปรดใส่ชื่อที่มีเว้นวรรคภายในเครื่องหมายคำพูด (\") เพื่อการทำงานที่ถูกต้อง")
 
     await ctx.send(embed=embed)
-    
+
 # รันบอท
 bot.run(TOKEN)
-          
