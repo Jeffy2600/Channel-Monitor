@@ -1,4 +1,4 @@
-Name: Run Python Bot
+Name: Run Discord Bot
 
 on:
   push:
