@@ -1,11 +1,11 @@
 {
   "apps": [
     {
-      "name": "discord-bot",
+      "name": "python-bot",
       "script": "bot.py",
       "log_level": "info",
       "env": {
-        "NODE_ENV": "production"
+        "PYTHONUNBUFFERED": true
       }
     }
   ]
