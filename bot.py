@@ -181,7 +181,7 @@ async def button_pressed(interaction, button):
     elif button.custom_id == "delete":
         await delete_help_embed(interaction, view)
     elif button.custom_id == "list":
-        await list_help_embed(interaction, view)  # Add await before closing parenthesis
+        await list_help_embed(interaction, view)
     try:
         await interaction.guild.create_category(category_name)
         await interaction.response.send_message(f"สร้างหมวดหมู่ `{category_name}` สำเร็จแล้ว")
