@@ -156,6 +156,3 @@ async def delete_channel(ctx, *channel_names):
 async def help(ctx):
     embed = discord.Embed(title="️ คู่มือบอท ️", description="ใช้คำสั่งเหล่านี้เพื่อจัดการช่องและหมวดหมู่:", color=discord.Color.blue())
     
-# รันบอท
-bot.run(TOKEN)
-          
