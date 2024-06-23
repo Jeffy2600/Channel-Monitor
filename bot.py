@@ -172,7 +172,7 @@ async def help(ctx):
     view = discord.ui.View(*button_categories)
     await ctx.respond(embed=embed, view=view)
 
-@view.on_button_press
+@on_button_press
 async def button_pressed(interaction, button):
     if button.custom_id == "create":
         await create_help_embed(interaction, view)
