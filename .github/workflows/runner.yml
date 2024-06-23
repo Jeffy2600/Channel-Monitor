@@ -1,4 +1,4 @@
-name: Run Python Bot
+Name: Run Python Bot
 
 on:
   push:
@@ -25,11 +25,5 @@ jobs:
 
     - name: Run bot
       run: |
-        pm2 start bot.py --log-level=INFO --pm2-file=bot.pm2.json
-
-    - name: Save logs
-      uses: actions/upload-artifact@v2
-      with:
-        name: logs
-        path: logs/*.log
+        python bot.py --log-level=INFO
         
