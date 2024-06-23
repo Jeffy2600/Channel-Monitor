@@ -1,4 +1,4 @@
-name: รัน Python Bot
+name: Run Python Bot
 
 on:
   push:
@@ -25,3 +25,4 @@ jobs:
         BOT_TOKEN: ${{ secrets.BOT_TOKEN }}  # แทนที่ด้วยชื่อ Secret จริงของคุณ
       run: |
         python bot.py --ระดับการบันทึก=INFO  # ใช้โทเคนที่นำเข้ามาที่นี่
+
