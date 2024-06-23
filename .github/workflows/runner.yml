@@ -1,4 +1,4 @@
-name: Run Python Bot
+name: รัน Python Bot
 
 on:
   push:
@@ -7,22 +7,21 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  สร้าง:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-
-    - name: Set up Python
+    - uses: actions/checkout@v2   # ดึงโค้ด
+    - name: ตั้งค่า Python
       uses: actions/setup-python@v2
       with:
         python-version: '3.8'
-
-    - name: Install dependencies
+    - name: ติดตั้ง Dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-
-    - name: Run bot
+    - name: รัน Bot
+      env:
+        BOT_TOKEN: ${{ secrets.BOT_TOKEN }}  # แทนที่ด้วยชื่อ Secret จริงของคุณ
       run: |
-        python bot.py --log-level=INFO
+        python bot.py --ระดับการบันทึก=INFO  # ใช้โทเคนที่นำเข้ามาที่นี่
