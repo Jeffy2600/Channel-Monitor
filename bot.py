@@ -117,19 +117,28 @@ async def delete_category(ctx, category_name: str):
         await ctx.respond(f" ไม่พบหมวดหมู่: {category_name}", ephemeral=True)
         return
 
-    await ctx.respond(f"⚠️ ต้องการลบหมวดหมู่ '{category_name}' ใช่หรือไม่? (ตอบกลับด้วย 'ยืนยัน' เพื่อดำเนินการต่อ)", ephemeral=True)
+    view = discord.ui.View()
 
-    def check(m):
-        return m.author == ctx.author and m.content.lower() == "ยืนยัน"
+    # เพิ่มปุ่ม "ยืนยัน"
+    confirm_button = discord.ui.Button(label="ยืนยัน", style=discord.ButtonStyle.success, custom_id="confirm")
+    view.add_item(confirm_button)
 
-    try:
-        await bot.wait_for_message(check=check, timeout=10)
-    except asyncio.TimeoutError:
-        await ctx.respond("❌ ยกเลิกการลบหมวดหมู่", ephemeral=True)
-        return
+    # เพิ่มปุ่ม "ยกเลิก"
+    cancel_button = discord.ui.Button(label="ยกเลิก", style=discord.ButtonStyle.danger, custom_id="cancel")
+    view.add_item(cancel_button)
 
-    await category.delete()
-    await ctx.respond(f"✅ ลบหมวดหมู่ '{category_name}' สำเร็จแล้วครับ/ค่ะ", ephemeral=True)
+    embed = discord.Embed(title=f"⚠️ ต้องการลบหมวดหมู่ '{category_name}' ใช่หรือไม่?", description="กดปุ่ม 'ยืนยัน' เพื่อดำเนินการต่อ", color=discord.Color.red())
+    await ctx.respond(embed=embed, view=view)
+
+    @view.on_button_press
+    async def button_pressed(interaction, button):
+        if button.custom_id == "confirm":
+            await interaction.response.edit_message(embed=None, view=None)
+            await category.delete()
+            await interaction.follow_up(f"✅ ลบหมวดหมู่ '{category_name}' สำเร็จแล้วครับ/ค่ะ", ephemeral=True)
+        elif button.custom_id == "cancel":
+            await interaction.response.edit_message(embed=None, view=None)
+            await interaction.follow_up("❌ ยกเลิกการลบหมวดหมู่", ephemeral=True)
 
 @bot.slash_command(name="ลบช่อง", description="ลบช่อง")
 async def delete_channel(ctx, *channel_names):
