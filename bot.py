@@ -113,9 +113,9 @@ async def delete_cac(ctx, category_name: str):
 
 @bot.slash_command(name="ลบหมวดหมู่", description="ลบหมวดหมู่")
 async def delete_category(ctx, category_name: str):
-    category = get(ctx.guild.categories, name=category_name)
+    category = ctx.guild.get_category(name=category_name)
     if not category:
-        await ctx.respond(f" ไม่พบหมวดหมู่: {category_name}", ephemeral=True)
+        await interaction.follow_up(f" ไม่พบหมวดหมู่: {category_name}", ephemeral=True)
         return
 
     view = ui.View()
@@ -128,19 +128,18 @@ async def delete_category(ctx, category_name: str):
     cancel_button = ui.Button(label="ยกเลิก", style=ui.ButtonStyle.danger, custom_id="cancel")
     view.add_item(cancel_button)
 
-    embed = discord.Embed(title=f"⚠️ ต้องการลบหมวดหมู่ '{category_name}' ใช่หรือไม่?", description="กดปุ่ม 'ยืนยัน' เพื่อดำเนินการต่อ", color=discord.Color.red())
-    await ctx.respond(embed=embed, view=view)
+    await interaction.respond(view=view)
 
     @view.on_button_press
     async def button_pressed(interaction, button):
         if button.custom_id == "confirm":
-            await interaction.response.edit_message(embed=None, view=None)
             await category.delete()
-            await interaction.follow_up(f"✅ ลบหมวดหมู่ '{category_name}' สำเร็จแล้วครับ/ค่ะ", ephemeral=True)
+            embed = discord.Embed(title=f"✅ ลบหมวดหมู่ '{category_name}' สำเร็จแล้วครับ/ค่ะ", color=discord.Color.green())
+            await interaction.follow_up(embed=embed, ephemeral=True)
         elif button.custom_id == "cancel":
-            await interaction.response.edit_message(embed=None, view=None)
-            await interaction.follow_up("❌ ยกเลิกการลบหมวดหมู่", ephemeral=True)
-    
+            embed = discord.Embed(title="❌ ยกเลิกการลบหมวดหมู่", color=discord.Color.red())
+            await interaction.follow_up(embed=embed, ephemeral=True)
+
 @bot.slash_command(name="ลบช่อง", description="ลบช่อง")
 async def delete_channel(ctx, *channel_names):
     deleted_channels = []
