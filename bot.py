@@ -120,31 +120,18 @@ async def delete_category(ctx, category_name: str):
         return
 
     embed = discord.Embed(title="⚠️ ต้องการลบหมวดหมู่", description=f"ต้องการลบหมวดหมู่ '{category_name}' ใช่หรือไม่?", color=discord.Color.yellow())
-    embed.add_field(name="ยืนยัน", value="กดปุ่ม 'ยืนยัน' เพื่อดำเนินการต่อ", inline=True)
-    embed.add_field(name="ยกเลิก", value="กดปุ่ม 'ยกเลิก' เพื่อยกเลิก", inline=True)
+    embed.add_field(name="ยืนยัน", value="ตอบ 'ยืนยัน' เพื่อลบ", inline=True)
 
-    view = ui.View()
+    await interaction.send(embed=embed)
 
-    # เพิ่มปุ่ม "ยืนยัน"
-    confirm_button = ui.Button(label="ยืนยัน", style=ui.ButtonStyle.success, custom_id="confirm")
-    view.add_item(confirm_button)
+    response = await interaction.wait_for(check=lambda m: m.author == ctx.author and m.content.lower() == "ยืนยัน")
+    if not response:
+        return
 
-    # เพิ่มปุ่ม "ยกเลิก"
-    cancel_button = ui.Button(label="ยกเลิก", style=ui.ButtonStyle.danger, custom_id="cancel")
-    view.add_item(cancel_button)
-
-    await interaction.respond(embed=embed, view=view)
-
-    @view.on_button_press
-    async def button_pressed(interaction, button):
-        if button.custom_id == "confirm":
-            await category.delete()
-            embed = discord.Embed(title="✅ ลบหมวดหมู่", description=f"ลบหมวดหมู่ '{category_name}' สำเร็จแล้วครับ/ค่ะ", color=discord.Color.green())
-            await interaction.edit_original_response(embed=embed)
-        elif button.custom_id == "cancel":
-            embed = discord.Embed(title="❌ ยกเลิกการลบหมวดหมู่", color=discord.Color.red())
-            await interaction.edit_original_response(embed=embed)
-            
+    await category.delete()
+    embed = discord.Embed(title="✅ ลบหมวดหมู่สำเร็จ", description=f"ลบหมวดหมู่ '{category_name}' เรียบร้อยแล้ว", color=discord.Color.green())
+    await interaction.send(embed=embed)
+    
 @bot.slash_command(name="ลบช่อง", description="ลบช่อง")
 async def delete_channel(ctx, *channel_names):
     deleted_channels = []
