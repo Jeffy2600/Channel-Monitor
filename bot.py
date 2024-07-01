@@ -17,6 +17,9 @@ def main():
 if __name__ == "__main__":
     main()
 
+# ดึงโทเคนจาก secrets account ของ GitHub
+bot_token = os.environ['BOT_TOKEN']
+
 intents = discord.Intents.default()
 intents.message_content = True
 
@@ -156,4 +159,4 @@ async def delete_channel(ctx, *channel_names):
 async def help(ctx):
     embed = discord.Embed(title="️ คู่มือบอท ️", description="ใช้คำสั่งเหล่านี้เพื่อจัดการช่องและหมวดหมู่:", color=discord.Color.blue())
 
-bot.run(BOT_TOKEN)
+bot.run(bot_token)
