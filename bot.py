@@ -155,4 +155,5 @@ async def delete_channel(ctx, *channel_names):
 @bot.slash_command(name="help", description="แสดงรายการคำสั่งสำหรับการจัดการช่องและหมวดหมู่")
 async def help(ctx):
     embed = discord.Embed(title="️ คู่มือบอท ️", description="ใช้คำสั่งเหล่านี้เพื่อจัดการช่องและหมวดหมู่:", color=discord.Color.blue())
-    
+
+bot.run(BOT.TOKEN)
