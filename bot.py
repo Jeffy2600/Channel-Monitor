@@ -120,12 +120,15 @@ async def delete_category(ctx, category_name: str):
         return
 
     embed = discord.Embed(title="⚠️ ต้องการลบหมวดหมู่", description=f"ต้องการลบหมวดหมู่ '{category_name}' ใช่หรือไม่?", color=discord.Color.yellow())
-    embed.add_field(name="ยืนยัน", value="ตอบ 'ยืนยัน' เพื่อลบ", inline=True)
+    embed.add_field(name="ตัวอย่างการตอบกลับ", value="ตกลง, ลบเลย, จัดการ", inline=True)
+    embed.add_field(name="เวลาตอบกลับ", value="ภายใน 30 วินาที", inline=True)
 
     await interaction.send(embed=embed)
 
-    response = await interaction.wait_for(check=lambda m: m.author == ctx.author and m.content.lower() == "ยืนยัน")
+    response = await interaction.wait_for(check=lambda m: m.author == ctx.author and m.content.lower() in ["ตกลง", "ลบเลย", "จัดการ"], timeout=30)
     if not response:
+        embed = discord.Embed(title="❌ ยกเลิกการลบหมวดหมู่", description=f"หมดเวลาการยืนยัน", color=discord.Color.orange())
+        await interaction.send(embed=embed)
         return
 
     await category.delete()
