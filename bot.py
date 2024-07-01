@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+from discord import ui
 from discord.ui import View, Button
 from discord.utils import get
 import logging
@@ -112,19 +113,19 @@ async def delete_cac(ctx, category_name: str):
 
 @bot.slash_command(name="ลบหมวดหมู่", description="ลบหมวดหมู่")
 async def delete_category(ctx, category_name: str):
-    category = discord.utils.get(ctx.guild.categories, name=category_name)
+    category = get(ctx.guild.categories, name=category_name)
     if not category:
         await ctx.respond(f" ไม่พบหมวดหมู่: {category_name}", ephemeral=True)
         return
 
-    view = discord.ui.View()
+    view = ui.View()
 
     # เพิ่มปุ่ม "ยืนยัน"
-    confirm_button = discord.ui.Button(label="ยืนยัน", style=discord.ButtonStyle.success, custom_id="confirm")
+    confirm_button = ui.Button(label="ยืนยัน", style=ui.ButtonStyle.success, custom_id="confirm")
     view.add_item(confirm_button)
 
     # เพิ่มปุ่ม "ยกเลิก"
-    cancel_button = discord.ui.Button(label="ยกเลิก", style=discord.ButtonStyle.danger, custom_id="cancel")
+    cancel_button = ui.Button(label="ยกเลิก", style=ui.ButtonStyle.danger, custom_id="cancel")
     view.add_item(cancel_button)
 
     embed = discord.Embed(title=f"⚠️ ต้องการลบหมวดหมู่ '{category_name}' ใช่หรือไม่?", description="กดปุ่ม 'ยืนยัน' เพื่อดำเนินการต่อ", color=discord.Color.red())
@@ -139,7 +140,7 @@ async def delete_category(ctx, category_name: str):
         elif button.custom_id == "cancel":
             await interaction.response.edit_message(embed=None, view=None)
             await interaction.follow_up("❌ ยกเลิกการลบหมวดหมู่", ephemeral=True)
-
+    
 @bot.slash_command(name="ลบช่อง", description="ลบช่อง")
 async def delete_channel(ctx, *channel_names):
     deleted_channels = []
