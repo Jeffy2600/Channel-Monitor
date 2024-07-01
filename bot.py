@@ -16,7 +16,7 @@ def main():
 
     logging.info("บอทออนไลน์แล้ว")
 
-if __name__ == "__bot__":
+if __name__ == "__main__":
     main()
 
 # ดึงโทเคนจาก secrets account ของ GitHub
