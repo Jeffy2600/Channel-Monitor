@@ -11,13 +11,13 @@ jobs:
     name: Checkout code
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
   setup_python:
     name: ตั้งค่า Python
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v3
         with:
           python-version: '3.8'
 
@@ -31,6 +31,13 @@ jobs:
       - name: ติดตั้ง dependencies จาก requirements.txt
         run: pip install -r requirements.txt
 
+      - uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            - ${{ runner.os }}-pip-
+
   run_bot:
     name: เรียกใช้ bot
     runs-on: ubuntu-latest
@@ -40,4 +47,4 @@ jobs:
           BOT_TOKEN: ${{ secrets.BOT_TOKEN_SECRET }}  # Replace with your actual secret name
         run: |
           python bot.py --log-level=INFO
-          
+
