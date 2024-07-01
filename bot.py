@@ -50,6 +50,6 @@ def main():
     # รัน Bot
     bot.run(bot_token)
 
-if __name__ == "__main__":
+if __name__ == "__bot__":
     main()
 
