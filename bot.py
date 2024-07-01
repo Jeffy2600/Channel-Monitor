@@ -22,6 +22,15 @@ if __name__ == "__main__":
 # ดึงโทเคนจาก secrets account ของ GitHub
 bot_token = os.environ['BOT_TOKEN']
 
+intents = discord.Intents.default()
+intents.message_content = True
+
+bot = commands.Bot(
+    command_prefix=commands.when_mentioned_or('C!', 'c!'),
+    case_insensitive=True,
+    intents=intents,
+    help_command=None)
+
 @bot.event
 async def on_ready():
     print(f'✅ {bot.user.name} ออนไลน์แล้ว')
@@ -173,4 +182,3 @@ async def help(ctx):
     await ctx.respond(embed=embed)
     
 bot.run(bot_token)
-
