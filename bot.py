@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+import os
 
 bot_token = os.environ['BOT_TOKEN']
 
