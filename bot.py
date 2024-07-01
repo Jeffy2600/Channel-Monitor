@@ -160,4 +160,51 @@ async def delete_channel(ctx, *channel_names):
 async def help(ctx):
     embed = discord.Embed(title="️ คู่มือบอท ️", description="ใช้คำสั่งเหล่านี้เพื่อจัดการช่องและหมวดหมู่:", color=discord.Color.blue())
 
+    # เพิ่มปุ่มหมวดหมู่
+    button_categories = [
+        discord.ui.Button(label="สร้าง", style=discord.ButtonStyle.primary, custom_id="create"),
+        discord.ui.Button(label="แก้ไข", style=discord.ButtonStyle.secondary, custom_id="edit"),
+        discord.ui.Button(label="ลบ", style=discord.ButtonStyle.danger, custom_id="delete"),
+        discord.ui.Button(label="รายการ", style=discord.ButtonStyle.secondary, custom_id="list"),
+    ]
+    view = discord.ui.View(*button_categories)
+    await ctx.respond(embed=embed, view=view)
+
+    @view.on_button_press
+    async def button_pressed(interaction, button):
+        if button.custom_id == "create":
+            await create_help_embed(interaction)
+        elif button.custom_id == "edit":
+            await edit_help_embed(interaction)
+        elif button.custom_id == "delete":
+            await delete_help_embed(interaction)
+        elif button.custom_id == "list":
+            await list_help_embed(interaction)
+
+async def create_help_embed(interaction):
+    embed = discord.Embed(title=" คำสั่งสร้าง", description="ใช้คำสั่งเหล่านี้เพื่อสร้างช่องและหมวดหมู่:")
+    embed.add_field(name="/สร้างหมวดหมู่", value="สร้างหมวดหมู่ใหม่ในเซิร์ฟเวอร์\nตัวอย่าง: /สร้างหมวดหมู่ เกม", inline=False)
+    embed.add_field(name="/สร้างช่อง", value="สร้างช่องใหม่ในเซิร์ฟเวอร์\nตัวอย่าง: /สร้างช่อง text เกมทั่วไป\nตัวอย่าง: /สร้างช่อง voice เกม FPS", inline=False)
+    await interaction.edit_message(embed=embed)
+
+async def edit_help_embed(interaction):
+    embed = discord.Embed(title="✏️ คำสั่งแก้ไข", description="ใช้คำสั่งเหล่านี้เพื่อแก้ไขช่องและหมวดหมู่:")
+    # เพิ่มรายละเอียดและตัวอย่างสำหรับคำสั่งแก้ไข
+    embed.add_field(name="/แก้ไขหมวดหมู่", value="แก้ไขชื่อหมวดหมู่\nตัวอย่าง: /แก้ไขหมวดหมู่ เกม เป็น เกมและการแชท", inline=False)
+    embed.add_field(name="/แก้ไขช่อง", value="แก้ไขชื่อช่อง\nตัวอย่าง: /แก้ไขช่อง เกมทั่วไป เป็น เกมสำหรับทุกคน", inline=False)
+    await interaction.edit_message(embed=embed)
+
+async def delete_help_embed(interaction):
+    embed = discord.Embed(title="️ คำสั่งลบ", description="ใช้คำสั่งเหล่านี้เพื่อลบช่องและหมวดหมู่:")
+    embed.add_field(name="/ลบหมวดหมู่และช่อง", value="ลบหมวดหมู่และช่องทั้งหมดภายในหมวดหมู่\nตัวอย่าง: /ลบหมวดหมู่และช่อง เกม", inline=False)
+    embed.add_field(name="/ลบหมวดหมู่", value="ลบหมวดหมู่เฉพาะ\nตัวอย่าง: /ลบหมวดหมู่ เกมทั่วไป", inline=False)
+    embed.add_field(name="/ลบช่อง", value="ลบช่องเฉพาะ\nตัวอย่าง: /ลบช่อง เกม FPS", inline=False)
+    await interaction.edit_message(embed=embed)
+
+async def list_help_embed(interaction):
+    embed = discord.Embed(title=" รายการคำสั่ง", description="ใช้คำสั่งเหล่านี้เพื่อดูรายการหมวดหมู่และช่อง", color=discord.Color.blue())
+    embed.add_field(name="/รายการ", value="แสดงรายชื่อหมวดหมู่และช่องทั้งหมดในเซิร์ฟเวอร์", inline=False)
+    await interaction.edit_message(embed=embed)
+
+
 bot.run(bot_token)
