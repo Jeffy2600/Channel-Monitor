@@ -120,20 +120,25 @@ async def delete_category(ctx, category_name: str):
         return
 
     embed = discord.Embed(title="⚠️ ต้องการลบหมวดหมู่", description=f"ต้องการลบหมวดหมู่ '{category_name}' ใช่หรือไม่?", color=discord.Color.yellow())
-    embed.add_field(name="ตัวอย่างการตอบกลับ", value="ตกลง, ลบเลย, จัดการ", inline=True)
-    embed.add_field(name="เวลาตอบกลับ", value="ภายใน 30 วินาที", inline=True)
+    embed.add_field(name="ยืนยัน", value="กดปุ่ม 'ยืนยัน' เพื่อดำเนินการต่อ", inline=True)
 
-    await interaction.send(embed=embed)
+    view = ui.View()
 
-    response = await interaction.wait_for(check=lambda m: m.author == ctx.author and m.content.lower() in ["ตกลง", "ลบเลย", "จัดการ"], timeout=30)
+    # เพิ่มปุ่ม "ยืนยัน"
+    confirm_button = ui.Button(label="ยืนยัน", style=ui.ButtonStyle.success, custom_id="confirm")
+    view.add_item(confirm_button)
+
+    await interaction.respond(embed=embed, view=view)
+
+    response = await view.wait_for(interaction, custom_id="confirm")
     if not response:
-        embed = discord.Embed(title="❌ ยกเลิกการลบหมวดหมู่", description=f"หมดเวลาการยืนยัน", color=discord.Color.orange())
-        await interaction.send(embed=embed)
         return
 
     await category.delete()
     embed = discord.Embed(title="✅ ลบหมวดหมู่สำเร็จ", description=f"ลบหมวดหมู่ '{category_name}' เรียบร้อยแล้ว", color=discord.Color.green())
-    await interaction.send(embed=embed)
+    await interaction.edit_original_response(embed=embed, view=None)
+
+
     
 @bot.slash_command(name="ลบช่อง", description="ลบช่อง")
 async def delete_channel(ctx, *channel_names):
