@@ -1,4 +1,4 @@
-name: Run Discord Bot
+name: Run Discord Bot with All Features
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  setup:
     runs-on: ubuntu-latest
 
     steps:
@@ -18,14 +18,48 @@ jobs:
       with:
         python-version: '3.8'
 
+    - name: Cache dependencies
+      uses: actions/cache@v2
+      with:
+        path: ~/.local/pip/cache
+        key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Run bot
-      env:
-        BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+  build-docker-image:
+    needs: setup
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+
+    - name: Build Docker image
       run: |
-        python bot.py --log-level=INFO
-        
+        docker build -t discord-bot:latest .
+
+  test:
+    needs: build-docker-image
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Run tests from Docker image
+      run: |
+        docker run -it discord-bot:latest python -m unittest discover
+
+  run:
+    needs: [setup, build-docker-image, test]
+    runs-on: ubuntu-latest
+
+    env:
+      BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+    steps:
+    - name: Run bot from Docker image
+      run: |
+        docker run -it discord-bot:latest
+
