@@ -139,7 +139,7 @@ async def delete_category(ctx, category_name: str):
         elif button.custom_id == "cancel":
             embed = discord.Embed(title="❌ ยกเลิกการลบหมวดหมู่", color=discord.Color.red())
             await interaction.follow_up(embed=embed, ephemeral=True)
-
+            
 @bot.slash_command(name="ลบช่อง", description="ลบช่อง")
 async def delete_channel(ctx, *channel_names):
     deleted_channels = []
