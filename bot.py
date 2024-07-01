@@ -115,8 +115,13 @@ async def delete_cac(ctx, category_name: str):
 async def delete_category(ctx, category_name: str):
     category = ctx.guild.get_category(name=category_name)
     if not category:
-        await interaction.follow_up(f" ไม่พบหมวดหมู่: {category_name}", ephemeral=True)
+        embed = discord.Embed(title="❌ ไม่พบหมวดหมู่", description=f"ไม่พบหมวดหมู่: {category_name}", color=discord.Color.red())
+        await interaction.respond(embed=embed, ephemeral=True)
         return
+
+    embed = discord.Embed(title="⚠️ ต้องการลบหมวดหมู่", description=f"ต้องการลบหมวดหมู่ '{category_name}' ใช่หรือไม่?", color=discord.Color.yellow())
+    embed.add_field(name="ยืนยัน", value="กดปุ่ม 'ยืนยัน' เพื่อดำเนินการต่อ", inline=True)
+    embed.add_field(name="ยกเลิก", value="กดปุ่ม 'ยกเลิก' เพื่อยกเลิก", inline=True)
 
     view = ui.View()
 
@@ -128,17 +133,17 @@ async def delete_category(ctx, category_name: str):
     cancel_button = ui.Button(label="ยกเลิก", style=ui.ButtonStyle.danger, custom_id="cancel")
     view.add_item(cancel_button)
 
-    await interaction.respond(view=view)
+    await interaction.respond(embed=embed, view=view)
 
     @view.on_button_press
     async def button_pressed(interaction, button):
         if button.custom_id == "confirm":
             await category.delete()
-            embed = discord.Embed(title=f"✅ ลบหมวดหมู่ '{category_name}' สำเร็จแล้วครับ/ค่ะ", color=discord.Color.green())
-            await interaction.follow_up(embed=embed, ephemeral=True)
+            embed = discord.Embed(title="✅ ลบหมวดหมู่", description=f"ลบหมวดหมู่ '{category_name}' สำเร็จแล้วครับ/ค่ะ", color=discord.Color.green())
+            await interaction.edit_original_response(embed=embed)
         elif button.custom_id == "cancel":
             embed = discord.Embed(title="❌ ยกเลิกการลบหมวดหมู่", color=discord.Color.red())
-            await interaction.follow_up(embed=embed, ephemeral=True)
+            await interaction.edit_original_response(embed=embed)
             
 @bot.slash_command(name="ลบช่อง", description="ลบช่อง")
 async def delete_channel(ctx, *channel_names):
