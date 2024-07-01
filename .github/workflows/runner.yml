@@ -1,4 +1,4 @@
-name: Run Discord Bot
+name: Run Python Bot
 
 on:
   push:
@@ -24,7 +24,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v3
       with:
-        python-version: '3.8'
+        python-version: '3.x'
 
     - name: Install dependencies
       run: |
@@ -32,5 +32,8 @@ jobs:
         pip install -r requirements.txt
 
     - name: Run bot
-      run: python bot.py
-      
+      env:
+        BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+      run: |
+        python bot.py --token ${{ secrets.BOT_TOKEN }}
+        
