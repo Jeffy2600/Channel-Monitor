@@ -14,7 +14,7 @@ def main():
     logging.info("บอทออนไลน์แล้ว")
 
 if __name__ == "__main__":
-    main()
+    bot_main()
 
 bot_token = os.environ['BOT_TOKEN']
 
