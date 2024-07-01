@@ -44,7 +44,7 @@ jobs:
     steps:
       - name: เรียกใช้ bot
         env:
-          BOT_TOKEN: ${{ secrets.BOT_TOKEN_SECRET }}  # Replace with your actual secret name
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}  # Replace with your actual secret name
         run: |
           python bot.py --log-level=INFO
 
